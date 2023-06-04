@@ -7,22 +7,30 @@ from tkinter import messagebox
 pygame.init()
 clock = pygame.time.Clock()
 
+#warna
+hitam = (0, 0, 0)
+merah = (255, 0, 0)
+coklat = (205, 133, 63)
+putih = (255, 255, 255)
+salju =(238, 246, 247)
+
+warna_background = (202, 201, 255)
+warna_benda = (255, 0, 0)
+warna_button = (0,0,0)
+warna_garis = (0, 0, 0)
+warna_teks = (0, 0, 0)
+warna_teks2 = (255, 255, 255)
+
+
 width = 1000
 height = 600
 screen = pygame.display.set_mode((width, height))
 screen.fill((255, 255, 255))
 surface = pygame.Surface((width, height), pygame.SRCALPHA)
-pygame.Surface.fill(surface, (255, 255, 255))
+pygame.Surface.fill(surface, (warna_background))
 pygame.display.set_caption("GLBB")
 
 
-hitam = (0, 0, 0)
-merah = (255, 0, 0)
-coklat = (205, 133, 63)
-putih = (255, 255, 255)
-biru = (202, 201, 255)
-salju =(238, 246, 247)
-senja = ()
 
 # properti bola
 radius_bola = 50
@@ -38,6 +46,8 @@ time = 0
 angle = 0
 laju = 100
 
+box_theme = pygame.Rect(width-70,20,25,25)
+
 # Batas bola agar tidak melebihi window
 side_Top = ball_y - 30
 side_Bot = ball_y + 450
@@ -49,6 +59,7 @@ dragging_x, dragging_y = False, False
 fall = True
 rotation = True
 hold = False
+theme = False
 
 # Input
 playBox = [
@@ -68,7 +79,7 @@ def button(teks, xywh, color, active_color):
     x, y, w, h = xywh[0], xywh[1], xywh[2], xywh[3]
     pygame.draw.rect(screen, color, (x, y, w, h), 0, 5)
     smallText = pygame.font.SysFont("Arial", 20)
-    textSurf, textRect = text_objects(teks, smallText, putih)
+    textSurf, textRect = text_objects(teks, smallText, warna_teks2)
     textRect.center = ((x + (w / 2)), (y + (h / 2)))
     screen.blit(textSurf, textRect)
 
@@ -169,6 +180,14 @@ while True:
                     hold = not hold
                 print("kiri")
 
+            if pygame.draw.rect(surface, warna_benda, box_theme, 0, 10).collidepoint(event.pos):
+                if theme:
+                    theme = False
+                else:
+                    theme = True
+
+    
+
         if event.type == pygame.MOUSEBUTTONUP:
             dragging_x, dragging_y = False, False
 
@@ -215,15 +234,15 @@ while True:
     
     lingkaran_group.update()
     lingkaran_group.draw(screen)
-    surface.fill(biru)
+    surface.fill(warna_background)
     dt = clock.tick_busy_loop(60)
 
 
     # slider
     slider = [
-        pygame.draw.line(surface, (hitam), (50, 530), (900, 530), 4),  # slid Horizontal
+        pygame.draw.line(surface, (warna_garis), (50, 530), (900, 530), 4),  # slid Horizontal
         pygame.draw.circle(surface, merah, (ball_x, 531), 6),  # titik horizontal
-        pygame.draw.line(surface, (hitam), (980, 30), (980, 450), 4),  # slider vertikal
+        pygame.draw.line(surface, (warna_garis), (980, 30), (980, 450), 4),  # slider vertikal
         pygame.draw.circle(surface, merah, (981, ball_y), 6),  # titik vertikal
     ]
     
@@ -305,14 +324,14 @@ while True:
     ]
 
     button1 = [
-        button(">", playBox[5], hitam, merah),
-        button("<", playBox[6], hitam, merah),
+        button(">", playBox[5], warna_button, merah),
+        button("<", playBox[6], warna_button, merah),
     ]
 
     input_rect = playBox[7]
     base_font_input = pygame.font.Font(None, 35)
     pygame.draw.rect(screen, merah, input_rect, width=3)
-    text_surface = base_font_input.render(v_input, True, hitam)
+    text_surface = base_font_input.render(v_input, True, warna_teks)
     screen.blit(text_surface, (input_rect.x + 7, input_rect.y + 3))
     input_rect.w = max(70, text_surface.get_width() + 10)
 
@@ -331,7 +350,20 @@ while True:
             pygame.draw.rect(surface, merah, (530, 550, 7, 30), 0, 18),
         ]
 
-    
+    #THEME
+    pygame.draw.rect(surface, warna_benda, box_theme, 0, 10)
+    if theme:
+        warna_benda, warna_garis, warna_teks = (255,255,255), (255,255,255), (255, 255, 255)
+        warna_background = (30, 30, 30)
+        warna_button = (255, 255, 255)
+        warna_teks2 = (0,0,0)
+
+    else:
+        warna_benda, warna_garis, warna_teks = (0, 0, 0), (0, 0, 0), (0, 0, 0)
+        warna_background = (202, 201, 255)
+        warna_button = (0,0,0)
+        warna_teks2 = (255,255,255)
+    # END THEME
 
     pygame.display.flip()
     pygame.display.update()
