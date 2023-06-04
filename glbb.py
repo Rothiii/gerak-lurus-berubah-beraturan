@@ -214,11 +214,15 @@ while True:
                     if int(v_input) >= 1000:
                         tk.Tk().withdraw()
                         messagebox.showinfo("Out of Range", "Mohon Input angka kurang dari 1000!")
-                        v_input = '999'
+                        v_input = '0'
+                        ball_x, ball_y = width/2, height/2
+                        ball_vx = 0
                 else:
                     # Pop-up alert jika digit input lebih dari 3
                     tk.Tk().withdraw()
                     messagebox.showinfo("Out of Range", "Input angka melebihi 3 digit!")
+                    ball_x, ball_y = width/2, height/2
+                    ball_vx = 0
             elif event.key == pygame.K_RETURN:
                 ball_vx = int(v_input) / 300
                 if hold:
