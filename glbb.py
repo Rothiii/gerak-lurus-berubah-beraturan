@@ -1,6 +1,8 @@
 import pygame
 import math
 import random
+import tkinter as tk
+from tkinter import messagebox
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -147,12 +149,22 @@ while True:
                     hold = not hold
 
             if pygame.draw.rect(surface, putih, playBox[5]).collidepoint(event.pos):
-                ball_vx = int(v_input) / laju
+                if v_input == '':
+                    v_input = "0"
+                    ball_vx = int(v_input) / laju
+                else:
+                    ball_vx = int(v_input) / laju
+                # ball_vx = -int(v_input) / laju
                 if hold:
                     hold = not hold
                 print("kanan")
             if pygame.draw.rect(surface, putih, playBox[6]).collidepoint(event.pos):
-                ball_vx = -int(v_input) / laju
+                if v_input == '':
+                    v_input = "0"
+                    ball_vx = -int(v_input) / laju
+                else:
+                    ball_vx = -int(v_input) / laju
+                # ball_vx = -int(v_input) / laju
                 if hold:
                     hold = not hold
                 print("kiri")
@@ -176,6 +188,13 @@ while True:
             # input
             if event.key == pygame.K_BACKSPACE:
                 v_input = v_input[:-1]
+            elif event.key >= pygame.K_0 and event.key <= pygame.K_9:
+                if len(v_input) < 4:
+                    v_input += pygame.key.name(event.key)
+                else:
+                    # Pop-up alert jika digit input lebih dari 4
+                    tk.Tk().withdraw()
+                    messagebox.showinfo("Out of Range", "Input angka melebihi 4 digit!")
             elif event.key == pygame.K_RETURN:
                 ball_vx = int(v_input) / 300
                 if hold:
@@ -186,6 +205,8 @@ while True:
                     cek = int(diklik)
                     if v_input == "0":
                         v_input = ""
+                    if v_input == "":
+                        v_input = "0"
                     v_input += diklik
                 except:
                     pass
@@ -315,7 +336,3 @@ while True:
     pygame.display.flip()
     pygame.display.update()
     screen.blit(surface, (0, 0))
-
-
-##https://github.com/Rothiii
-##ig: rafidal._
