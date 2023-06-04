@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -10,11 +11,16 @@ screen = pygame.display.set_mode((width, height))
 screen.fill((255, 255, 255))
 surface = pygame.Surface((width, height), pygame.SRCALPHA)
 pygame.Surface.fill(surface, (255, 255, 255))
+pygame.display.set_caption("GLBB")
+
 
 hitam = (0, 0, 0)
 merah = (255, 0, 0)
 coklat = (205, 133, 63)
 putih = (255, 255, 255)
+biru = (202, 201, 255)
+salju =(238, 246, 247)
+senja = ()
 
 # properti bola
 radius_bola = 50
@@ -28,7 +34,7 @@ g = 9.8 / 10000
 dt = 0
 time = 0
 angle = 0
-
+laju = 100
 
 # Batas bola agar tidak melebihi window
 side_Top = ball_y - 30
@@ -63,6 +69,7 @@ def button(teks, xywh, color, active_color):
     textSurf, textRect = text_objects(teks, smallText, putih)
     textRect.center = ((x + (w / 2)), (y + (h / 2)))
     screen.blit(textSurf, textRect)
+
     if x + w > mouse[0] > x and y + h > mouse[1] > y:
         pygame.draw.rect(screen, active_color, (x, y, w, h), 0, 5)
         smallText = pygame.font.SysFont("Arial", 20)
@@ -75,35 +82,130 @@ def text_objects(text, font, color):
     textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
 
+class Lingkaran(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        radius1 = random.randint(1, 4)  # Radius lingkaran
+        self.warna = salju
+
+        # Membuat permukaan lingkaran dengan ukuran diameter
+        self.image = pygame.Surface((radius1 * 2, radius1 * 2), pygame.SRCALPHA)
+
+        # Menggambar lingkaran pada permukaan dengan warna putih
+        pygame.draw.circle(self.image, (self.warna), (radius1, radius1), radius1, 0)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(-300, 2000)
+        self.rect.y = 500
+        self.speed = random.randint(2, 5)
+
+    def update(self):
+        self.rect.y += self.speed
+        self.rect.x += self.speed - 1
+        if self.rect.y > 495:
+            self.rect.x = random.randint(-300, 2000)
+            self.rect.y = random.randint(-450, -100)
+            self.speed = random.randint(2, 5)
+
+
+lingkaran_group = pygame.sprite.Group()
+
+for _ in range(5):
+    for i in range(60):
+        lingkaran = Lingkaran()
+        lingkaran_group.add(lingkaran)
+
 
 while True:
     latest_x, latest_y = ball_x, ball_y
-    surface.fill(putih)
-    dt = clock.tick_busy_loop(120)
 
-    # for i, pos in enumerate(bayangan):
-    #     radius_temp = (
-    #         int((len(bayangan) + i) * (radius_bola / len(bayangan))) - radius_bola
-    #     )
-    #     pygame.draw.circle(
-    #         surface, (0, 0, 0, 2), (int(pos[0]), int(pos[1])), radius_temp
-    #     )
+    
+    # Mendapatkan input dari pengguna =====================
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if slider[0].collidepoint(event.pos) or slider[1].collidepoint(event.pos):
+                x, y = event.pos
+                if x > 50 and x < 900:
+                    ball_x = x
+                    dragging_x = True
+                    hold = True
+            if slider[2].collidepoint(event.pos) or slider[3].collidepoint(event.pos):
+                x, y = event.pos
+                if y > 30 and y < 450:
+                    ball_y = y
+                    dragging_y = True
+                    hold = True
+            if (
+                play[0].collidepoint(event.pos)
+                or play[1].collidepoint(event.pos)
+                or play[2].collidepoint(event.pos)
+            ):
+                if hold or not hold:
+                    hold = not hold
 
-    # bayangan.append((ball_x, ball_y))
+            if pygame.draw.rect(surface, putih, playBox[5]).collidepoint(event.pos):
+                ball_vx = int(v_input) / laju
+                if hold:
+                    hold = not hold
+                print("kanan")
+            if pygame.draw.rect(surface, putih, playBox[6]).collidepoint(event.pos):
+                ball_vx = -int(v_input) / laju
+                if hold:
+                    hold = not hold
+                print("kiri")
 
-    # if len(bayangan) > 100:
-    #     bayangan.pop(0)
+        if event.type == pygame.MOUSEBUTTONUP:
+            dragging_x, dragging_y = False, False
+
+        if event.type == pygame.MOUSEMOTION:
+            if dragging_x:
+                x, y = event.pos
+                if x > 50 and x < 900:
+                    ball_x = x
+                
+            if dragging_y:
+                x, y = event.pos
+                if y > 30 and y < 450:
+                    ball_y = y
+                    hold = True
+
+        if event.type == pygame.KEYDOWN:
+            # input
+            if event.key == pygame.K_BACKSPACE:
+                v_input = v_input[:-1]
+            elif event.key == pygame.K_RETURN:
+                ball_vx = int(v_input) / 300
+                if hold:
+                    hold = not hold
+            else:
+                diklik = event.unicode
+                try:
+                    cek = int(diklik)
+                    if v_input == "0":
+                        v_input = ""
+                    v_input += diklik
+                except:
+                    pass
+  
+
+    
+    lingkaran_group.update()
+    lingkaran_group.draw(screen)
+    surface.fill(biru)
+    dt = clock.tick_busy_loop(60)
+
 
     # slider
     slider = [
-        pygame.draw.line(
-            surface, (hitam), (50, 530), (900, 530), 2
-        ),  # slider Horizontal
-        pygame.draw.circle(surface, merah, (ball_x, 531), 4),  # titik horizontal
-        pygame.draw.line(surface, (hitam), (980, 30), (980, 450), 2),  # slider vertikal
-        pygame.draw.circle(surface, merah, (981, ball_y), 4),  # titik vertikal
+        pygame.draw.line(surface, (hitam), (50, 530), (900, 530), 4),  # slid Horizontal
+        pygame.draw.circle(surface, merah, (ball_x, 531), 6),  # titik horizontal
+        pygame.draw.line(surface, (hitam), (980, 30), (980, 450), 4),  # slider vertikal
+        pygame.draw.circle(surface, merah, (981, ball_y), 6),  # titik vertikal
     ]
-
+    
     # pergerakan bola
     if not hold:
         ## gerakan bola horizontal ======================
@@ -177,7 +279,8 @@ while True:
         pygame.draw.circle(surface, hitam, (ball_x, ball_y), radius_bola + 3, 2),
         (pygame.draw.line(surface, hitam, x[1], x[0], 3)),  # garis
         (pygame.draw.line(surface, hitam, x[3], x[2], 3)),  # garis
-        pygame.draw.line(surface, (coklat), (0, 505), (1000, 505), 5),  # ground
+        pygame.draw.line(surface, (coklat), (0, 506), (1000, 506), 7),  # ground
+        pygame.draw.line(surface, (salju), (0, 500), (1000, 500), 4),  # ground
     ]
 
     button1 = [
@@ -206,73 +309,9 @@ while True:
             pygame.draw.rect(surface, merah, (515, 550, 7, 30), 0, 18),
             pygame.draw.rect(surface, merah, (530, 550, 7, 30), 0, 18),
         ]
-    # Mendapatkan input dari pengguna =====================
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if slider[0].collidepoint(event.pos):
-                x, y = event.pos
-                if x > 50 and x < 900:
-                    ball_x = x
-                    dragging_x = True
-                    hold = True
-            if slider[2].collidepoint(event.pos):
-                x, y = event.pos
-                if y > 30 and y < 450:
-                    ball_y = y
-                    dragging_y = True
-                    hold = True
-            if (
-                play[0].collidepoint(event.pos)
-                or play[1].collidepoint(event.pos)
-                or play[2].collidepoint(event.pos)
-            ):
-                if hold or not hold:
-                    hold = not hold
 
-            if pygame.draw.rect(surface, putih, playBox[5]).collidepoint(event.pos):
-                ball_vx = int(v_input) / 300
-                if hold:
-                    hold = not hold
-                print("kanan")
-            if pygame.draw.rect(surface, putih, playBox[6]).collidepoint(event.pos):
-                ball_vx = -int(v_input) / 300
-                if hold:
-                    hold = not hold
-                print("kiri")
+    
 
-        if event.type == pygame.MOUSEBUTTONUP:
-            dragging_x, dragging_y = False, False
-
-        if event.type == pygame.MOUSEMOTION:
-            if dragging_x:
-                x, y = event.pos
-                if x > 50 and x < 900:
-                    ball_x = x
-
-            if dragging_y:
-                x, y = event.pos
-                if y > 30 and y < 450:
-                    ball_y = y
-                    hold = True
-
-        if event.type == pygame.KEYDOWN:
-            # input
-            if event.key == pygame.K_BACKSPACE:
-                v_input = v_input[:-1]
-            elif event.key == pygame.K_RETURN:
-                ball_vx = int(v_input) / 300
-            else:
-                diklik = event.unicode
-                try:
-                    cek = int(diklik)
-                    if v_input == "0":
-                        v_input = ""
-                    v_input += diklik
-                except:
-                    pass
     pygame.display.flip()
     pygame.display.update()
     screen.blit(surface, (0, 0))
