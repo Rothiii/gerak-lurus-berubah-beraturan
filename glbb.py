@@ -208,12 +208,17 @@ while True:
             if event.key == pygame.K_BACKSPACE:
                 v_input = v_input[:-1]
             elif event.key >= pygame.K_0 and event.key <= pygame.K_9:
-                if len(v_input) < 4:
+                if len(v_input) <= 3:
                     v_input += pygame.key.name(event.key)
+                    # Pop-up alert jika nilai input lebih dari 1000
+                    if int(v_input) >= 1000:
+                        tk.Tk().withdraw()
+                        messagebox.showinfo("Out of Range", "Mohon Input angka kurang dari 1000!")
+                        v_input = '999'
                 else:
-                    # Pop-up alert jika digit input lebih dari 4
+                    # Pop-up alert jika digit input lebih dari 3
                     tk.Tk().withdraw()
-                    messagebox.showinfo("Out of Range", "Input angka melebihi 4 digit!")
+                    messagebox.showinfo("Out of Range", "Input angka melebihi 3 digit!")
             elif event.key == pygame.K_RETURN:
                 ball_vx = int(v_input) / 300
                 if hold:
