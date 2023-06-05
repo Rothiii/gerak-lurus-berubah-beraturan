@@ -15,6 +15,7 @@ putih = (255, 255, 255)
 salju =(238, 246, 247)
 
 warna_background = (202, 201, 255)
+warna_gravitasi = (255,100,100)
 warna_benda = (255, 0, 0)
 warna_button = (0,0,0)
 warna_garis = (0, 0, 0)
@@ -60,6 +61,8 @@ fall = True
 rotation = True
 hold = False
 theme = False
+gravitasi = True
+gravitasiLine = 1
 
 # Input
 playBox = [
@@ -185,8 +188,11 @@ while True:
                     theme = False
                 else:
                     theme = True
-
-    
+            if gravitasiButton.collidepoint(event.pos):
+                if gravitasi:
+                    gravitasi = not gravitasi
+                else:
+                    gravitasi = not gravitasi
 
         if event.type == pygame.MOUSEBUTTONUP:
             dragging_x, dragging_y = False, False
@@ -224,9 +230,19 @@ while True:
                     ball_x, ball_y = width/2, height/2
                     ball_vx = 0
             elif event.key == pygame.K_RETURN:
-                ball_vx = int(v_input) / 300
+                if v_input == '':
+                    v_input = "0"
+                    ball_vx = int(v_input) / 300
+                else:
+                    ball_vx = int(v_input) / 300
+                # ball_vx = int(v_input) / 300
                 if hold:
                     hold = not hold
+
+            elif event.key == pygame.K_SPACE:
+                v_input = '0'
+                ball_vx = 0 
+
             else:
                 diklik = event.unicode
                 try:
@@ -268,19 +284,19 @@ while True:
                 ball_vx = -ball_vx
 
         ## manipulasi gravitasi, pantulan dan gerakan vertikal =======================
-
-        if fall and side_Bot <= height:
-            ball_y += g * (time**2) * dt
-            time += 1
-        if ball_y >= side_Bot:
-            fall = False
-            time = time / 1.2
-        if not fall:
-            ball_y -= g * (time**2) * dt
-            time -= 1
-        if time < 1:
-            fall = True
-            time = 0
+        if gravitasi:
+            if fall and side_Bot <= height:
+                ball_y += g * (time**2) * dt
+                time += 1
+            if ball_y >= side_Bot:
+                fall = False
+                time = time / 1.2
+            if not fall:
+                ball_y -= g * (time**2) * dt
+                time -= 1
+            if time < 1:
+                fall = True
+                time = 0
 
     ##bola mengecil dan membatasi agar tidak melebihi window ================
     if ball_y <= 30:
@@ -359,6 +375,14 @@ while True:
             pygame.draw.rect(surface, merah, (530, 550, 7, 30), 0, 18),
         ]
 
+    gravitasiButton = pygame.draw.circle(surface, warna_gravitasi, (width-60, height-40), 20, gravitasiLine)
+    if gravitasi:
+        warna_gravitasi =  (255, 100, 100)
+        gravitasiLine = 1
+    else:
+        warna_gravitasi = (255, 100, 100)
+        gravitasiLine = 100
+
     #THEME
     pygame.draw.rect(surface, warna_benda, box_theme, 0, 10)
     if theme:
@@ -366,6 +390,10 @@ while True:
         warna_background = (30, 30, 30)
         warna_button = (255, 255, 255)
         warna_teks2 = (0,0,0)
+        bulan = [
+                    pygame.draw.circle(surface, (246, 241, 213), (50, 50), 30),
+                    pygame.draw.circle(surface, (30, 30, 30), (44, 48), 26)
+                ]
 
     else:
         warna_benda, warna_garis, warna_teks = (0, 0, 0), (0, 0, 0), (0, 0, 0)
